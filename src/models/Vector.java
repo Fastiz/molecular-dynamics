@@ -8,14 +8,6 @@ public class Vector {
         this.y = y;
     }
 
-    public double SquaredDistanceFrom(Vector otherPos){
-        return SquaredDistanceBetween(this, otherPos);
-    }
-
-    public static double SquaredDistanceBetween(Vector pos1, Vector pos2){
-        return (double)(Math.pow(pos1.x-pos2.x, 2) + Math.pow(pos1.y-pos2.y, 2));
-    }
-
     public double getX(){
         return x;
     }

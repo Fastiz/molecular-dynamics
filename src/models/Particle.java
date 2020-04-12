@@ -5,12 +5,6 @@ public class Particle {
     private Vector vel;
     private double radius;
     private double mass;
-    private int id;
-
-    public static final Particle LEFT_WALL = new Particle(),
-            RIGHT_WALL = new Particle(),
-            TOP_WALL = new Particle(),
-            BOTTOM_WALL = new Particle();
 
     public Particle() {
 
@@ -30,25 +24,12 @@ public class Particle {
         this.mass = mass;
     }
 
-    public boolean IsInsideActionRadiusOf(Particle otherParticle, double actionRadius){
-        double squareActionRadiusPlusRadius = (double) Math.pow(actionRadius + radius + otherParticle.radius, 2);
-        return squareActionRadiusPlusRadius >= otherParticle.pos.SquaredDistanceFrom(pos);
-    }
-
     public Vector getPos(){
         return pos;
     }
 
     public Vector getVel(){
         return vel;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
     }
 
     public double getRadius() {
