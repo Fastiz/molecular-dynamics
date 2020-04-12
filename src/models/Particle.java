@@ -1,36 +1,43 @@
 package models;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Particle {
-    private Vector pos;
-    private Vector vel;
     private double radius;
     private double mass;
-    private double[][] derivative;
+    private List<Vector> derivatives;
 
-    public Particle() {
-
+    public Particle(List<Vector> derivatives) {
+        this.derivatives = derivatives;
     }
 
     public Particle(Vector pos, Vector vel, double radius, double mass){
-        this.pos = pos;
+        this.derivatives = new ArrayList<>();
+
+        this.derivatives.add(pos);
+        this.derivatives.add(vel);
+
         this.radius = radius;
-        this.vel = vel;
         this.mass = mass;
     }
 
     public Particle(double x, double y, double vx, double vy, double radius, double mass){
-        this.pos = new Vector(x, y);
+        this.derivatives = new ArrayList<>();
+
+        this.derivatives.add(new Vector(x, y));
+        this.derivatives.add(new Vector(vx, vy));
+
         this.radius = radius;
-        this.vel = new Vector(vx, vy);
         this.mass = mass;
     }
 
     public Vector getPos(){
-        return pos;
+        return this.derivatives.get(0);
     }
 
     public Vector getVel(){
-        return vel;
+        return this.derivatives.get(1);
     }
 
     public double getRadius() {
@@ -42,7 +49,7 @@ public class Particle {
     }
 
     public void setPosition(double x, double y){
-        this.pos = new Vector(x, y);
+        this.derivatives.set(0, new Vector(x, y));
     }
 
     public double getMass(){
@@ -50,6 +57,10 @@ public class Particle {
     }
 
     public void setVel(double x, double y){
-        this.vel = new Vector(x, y);
+        this.derivatives.set(1, new Vector(x, y));
+    }
+
+    public List<Vector> getDerivatives() {
+        return derivatives;
     }
 }

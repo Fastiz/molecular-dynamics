@@ -1,6 +1,5 @@
 package interfaces;
 
-import models.Force;
 import models.Particle;
 
 import java.util.List;
