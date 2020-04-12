@@ -5,6 +5,7 @@ public class Particle {
     private Vector vel;
     private double radius;
     private double mass;
+    private double[][] derivative;
 
     public Particle() {
 
