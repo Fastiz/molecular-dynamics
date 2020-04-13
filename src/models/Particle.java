@@ -12,6 +12,13 @@ public class Particle {
         this.derivatives = derivatives;
     }
 
+    public Particle(Vector pos, Vector vel){
+        this.derivatives = new ArrayList<>();
+
+        this.derivatives.add(pos);
+        this.derivatives.add(vel);
+    }
+
     public Particle(Vector pos, Vector vel, double radius, double mass){
         this.derivatives = new ArrayList<>();
 
@@ -38,6 +45,10 @@ public class Particle {
 
     public Vector getVel(){
         return this.derivatives.get(1);
+    }
+
+    public Vector getAcel(){
+        return this.derivatives.get(2);
     }
 
     public double getRadius() {
