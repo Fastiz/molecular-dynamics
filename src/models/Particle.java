@@ -54,12 +54,20 @@ public class Particle {
         this.derivatives.set(0, new Vector(x, y));
     }
 
+    public void setPosition(Vector pos){
+        this.derivatives.set(0, pos);
+    }
+
     public double getMass(){
         return mass;
     }
 
     public void setVel(double x, double y){
         this.derivatives.set(1, new Vector(x, y));
+    }
+
+    public void setVel(Vector pos){
+        this.derivatives.set(1, pos);
     }
 
     public List<Vector> getDerivatives() {
