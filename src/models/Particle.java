@@ -67,9 +67,6 @@ public class Particle {
         this.radius = radius;
     }
 
-    public void setPosition(Vector position){
-        this.derivatives.set(0, new Vector(position.getX(), position.getY()));
-    }
 
     public void setPosition(double x, double y){
         this.derivatives.set(0, new Vector(x, y));
@@ -83,9 +80,6 @@ public class Particle {
         return mass;
     }
 
-    public void setVel(Vector vel){
-        this.derivatives.set(1, new Vector(vel.getX(), vel.getY()));
-    }
 
     public void setVel(double x, double y){
         this.derivatives.set(1, new Vector(x, y));
