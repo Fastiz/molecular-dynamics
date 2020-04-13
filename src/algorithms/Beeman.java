@@ -44,21 +44,33 @@ public class Beeman implements TemporalStepAlgorithmInterface {
     }
 
     private Vector calculateNextPos(Particle particle, Particle previousParticle) {
-        double x = particle.getPos().getX() + (particle.getVel().getX() * TEMP_STEP) + (2 * particle.getAcel().getX() * Math.pow(TEMP_STEP, 2) / 3) - (previousParticle.getAcel().getX() * Math.pow(TEMP_STEP, 2) / 6);
-        double y = particle.getPos().getY() + (particle.getVel().getY() * TEMP_STEP) + (2 * particle.getAcel().getY() * Math.pow(TEMP_STEP, 2) / 3) - (previousParticle.getAcel().getY() * Math.pow(TEMP_STEP, 2) / 6);
+        double x = nextPos(particle.getPos().getX(), particle.getVel().getX(), particle.getAcel().getX(), previousParticle.getAcel().getX());
+        double y = nextPos(particle.getPos().getY(), particle.getVel().getY(), particle.getAcel().getY(), previousParticle.getAcel().getY());
         return new Vector(x, y);
     }
 
+    private double nextPos(double pos, double vel, double acel, double previousAcel) {
+        return pos + (vel * TEMP_STEP) + (2 * acel * Math.pow(TEMP_STEP, 2) / 3) - (previousAcel * Math.pow(TEMP_STEP, 2) / 6);
+    }
+
     private Vector predictNextVel(Particle particle, Particle previousParticle) {
-        double vx = particle.getVel().getX() + (3 * particle.getAcel().getX() * TEMP_STEP / 2) - (previousParticle.getAcel().getX() * TEMP_STEP / 2);
-        double vy = particle.getVel().getY() + (3 * particle.getAcel().getY() * TEMP_STEP / 2) - (previousParticle.getAcel().getY() * TEMP_STEP / 2);
+        double vx = predictVel(particle.getVel().getX(), particle.getAcel().getX(), previousParticle.getAcel().getX());
+        double vy = predictVel(particle.getVel().getY(), particle.getAcel().getY(), previousParticle.getAcel().getY());
         return new Vector(vx, vy);
     }
 
+    private double predictVel(double vel, double acel, double previousAcel) {
+        return vel + (3 * acel * TEMP_STEP / 2) - (previousAcel * TEMP_STEP / 2);
+    }
+
     private void setNextVel(Particle newParticle, Particle particle, Particle previousParticle) {
-        double vx = particle.getVel().getX() + (newParticle.getAcel().getX() * TEMP_STEP / 3) + (5 * particle.getAcel().getX() * TEMP_STEP / 6) - (previousParticle.getAcel().getX() * TEMP_STEP / 6);
-        double vy = particle.getVel().getY() + (newParticle.getAcel().getY() * TEMP_STEP / 3) + (5 * particle.getAcel().getY() * TEMP_STEP / 6) - (previousParticle.getAcel().getY() * TEMP_STEP / 6);
+        double vx = nextVel(particle.getVel().getX(), newParticle.getAcel().getX(), particle.getAcel().getX(), previousParticle.getAcel().getX());
+        double vy = nextVel(particle.getVel().getY(), newParticle.getAcel().getY(), particle.getAcel().getY(), previousParticle.getAcel().getY());
         newParticle.setVel(vx, vy);
+    }
+
+    private double nextVel(double vel, double newAcel, double acel, double previousAcel) {
+        return vel + (newAcel * TEMP_STEP / 3) + (5 * acel * TEMP_STEP / 6) - (previousAcel * TEMP_STEP / 6);
     }
 
     private void estimatePrevious() {
