@@ -23,16 +23,24 @@ public class LeapFrog {
 
         particles = forcesCalculator.calculate(particles);
         estimatePreviousSpeeds();
+        setNextSpeeds();
     }
 
     public void step() {
         for(int i = 0; i < particles.size(); i++) {
             Particle particle = particles.get(i);
             Vector newVel = halfNextVels.get(i);
-
             particle.setPosition(calculateNextPos(particle, newVel));
         }
         setCurrentSpeedAndForces();
+    }
+
+    private void setNextSpeeds() {
+        for(int i = 0; i < particles.size(); i++) {
+            Particle particle = particles.get(i);
+            Vector newVel = calculateNextVel(particle, halfPreviousVels.get(i));
+            halfNextVels.add(newVel);
+        }
     }
 
     private void setCurrentSpeedAndForces() {
