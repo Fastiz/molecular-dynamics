@@ -14,19 +14,6 @@ public class Particle {
         this.mass = mass;
     }
 
-    public Particle(Vector pos){
-        this.derivatives = new ArrayList<>();
-
-        this.derivatives.add(pos);
-    }
-
-    public Particle(Vector pos, Vector vel){
-        this.derivatives = new ArrayList<>();
-
-        this.derivatives.add(pos);
-        this.derivatives.add(vel);
-    }
-
     public Particle(Vector pos, Vector vel, double radius, double mass){
         this.derivatives = new ArrayList<>();
 

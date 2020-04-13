@@ -26,8 +26,8 @@ public class SpringModel implements ForcesCalculator {
             List<Vector> derivatives = new ArrayList<>();
 
             //setting to 0 position and velocity
-            derivatives.add(new Vector(0.0, 0.0));
-            derivatives.add(new Vector(0.0, 0.0));
+            derivatives.add(particle.getPos());
+            derivatives.add(particle.getVel());
 
             double x, y;
             x = -particle.getDerivatives().get(0).getX()*this.k - particle.getDerivatives().get(1).getX()*this.gamma;

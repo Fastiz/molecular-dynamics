@@ -11,7 +11,7 @@ import java.util.List;
 
 public class Beeman implements TemporalStepAlgorithmInterface {
 
-    private static double TEMP_STEP = 0;
+    private static double TEMP_STEP = 0.01;
     private List<Particle> previousParticles;
     private List<Particle> particles;
     private ForcesCalculator forcesCalculator;
@@ -20,6 +20,7 @@ public class Beeman implements TemporalStepAlgorithmInterface {
         this.forcesCalculator = forcesCalculator;
         this.particles = particles;
         estimatePrevious();
+        System.out.println(previousParticles.get(0).getPos());
     }
 
     public void step() {
@@ -29,7 +30,7 @@ public class Beeman implements TemporalStepAlgorithmInterface {
             Particle previousParticle = previousParticles.get(i);
             Vector newPos = calculateNextPos(particle, previousParticle);
             Vector predictedVel = predictNextVel(particle, previousParticle);
-            Particle newParticle = new Particle(newPos, predictedVel);
+            Particle newParticle = new Particle(newPos, predictedVel, particle.getRadius(), particle.getMass());
             newParticles.add(newParticle);
         }
 
@@ -41,6 +42,10 @@ public class Beeman implements TemporalStepAlgorithmInterface {
 
         previousParticles = particles;
         particles = newParticles;
+    }
+
+    public List<Particle> getParticles() {
+        return particles;
     }
 
     private Vector calculateNextPos(Particle particle, Particle previousParticle) {
@@ -84,7 +89,7 @@ public class Beeman implements TemporalStepAlgorithmInterface {
             double vx = particle.getVel().getX() - (TEMP_STEP * particle.getAcel().getX());
             double vy = particle.getVel().getY() - (TEMP_STEP * particle.getAcel().getY());
             derivates.add(new Vector(vx,vy));
-            previousParticles.add(new Particle(derivates));
+            previousParticles.add(new Particle(derivates, particle.getRadius(), particle.getMass()));
         }
 
         previousParticles = forcesCalculator.calculate(previousParticles);

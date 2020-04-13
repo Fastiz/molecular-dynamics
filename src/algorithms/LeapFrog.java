@@ -1,14 +1,15 @@
 package algorithms;
 
 import interfaces.ForcesCalculator;
+import interfaces.TemporalStepAlgorithmInterface;
 import models.Particle;
 import models.Vector;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class LeapFrog {
-    private static double TEMP_STEP = 0;
+public class LeapFrog implements TemporalStepAlgorithmInterface {
+    private static double TEMP_STEP = 0.005;
     private static double HALF_TEMP_STEP;
     private List<Vector> halfPreviousVels;
     private List<Vector> halfNextVels;
@@ -21,7 +22,7 @@ public class LeapFrog {
         this.particles = particles;
         HALF_TEMP_STEP = TEMP_STEP / 2;
 
-        particles = forcesCalculator.calculate(particles);
+        this.particles = forcesCalculator.calculate(particles);
         estimatePreviousSpeeds();
         setNextSpeeds();
     }
@@ -33,6 +34,10 @@ public class LeapFrog {
             particle.setPosition(calculateNextPos(particle, newVel));
         }
         setCurrentSpeedAndForces();
+    }
+
+    public List<Particle> getParticles() {
+        return particles;
     }
 
     private void setNextSpeeds() {
