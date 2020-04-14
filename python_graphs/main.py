@@ -7,7 +7,7 @@ def main():
 
 
 def plot_numerical_vs_analytical():
-    gamma = 1000
+    gamma = 100
     k = 10000
     mass = 70
     step = 0.001

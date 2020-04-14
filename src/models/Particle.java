@@ -8,6 +8,10 @@ public class Particle {
     private double mass;
     private List<Vector> derivatives;
 
+    public Particle(List<Vector> derivatives) {
+        this.derivatives = derivatives;
+    }
+
     public Particle(List<Vector> derivatives, double radius, double mass) {
         this.derivatives = derivatives;
         this.radius = radius;

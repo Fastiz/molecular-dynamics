@@ -1,5 +1,6 @@
 package algorithms;
 
+import interfaces.DerivativesCalculator;
 import interfaces.ForcesCalculator;
 import interfaces.TemporalStepAlgorithmInterface;
 import models.Particle;
@@ -14,31 +15,18 @@ public class GearPredictorCorrectorOrder5 implements TemporalStepAlgorithmInterf
     private double step;
     private static final double[] ALPHAS = new double[]{3.0/16, 251.0/360, 1, 11.0/18, 1.0/6, 1.0/60};
 
-    public GearPredictorCorrectorOrder5(List<Particle> particles, ForcesCalculator forcesCalculator, double step){
+    public GearPredictorCorrectorOrder5(List<Particle> particles, ForcesCalculator forcesCalculator, double step, DerivativesCalculator derivativesCalculator){
         this.forcesCalculator = forcesCalculator;
         this.step = step;
 
-        this.particleList = particles;
-
-        setInitialValuesForParticles();
+        this.particleList = derivativesCalculator.calculate(particles);
     }
 
-    private void setInitialValuesForParticles(){
-        List<Particle> forces = this.forcesCalculator.calculate(this.particleList);
-        for(int i=0; i<forces.size(); i++){
-            Particle force = forces.get(i);
-            Particle particle = this.particleList.get(i);
-
-            force.setPosition(particle.getPos());
-            force.setVel(particle.getVel());
-
-        }
-
-        this.particleList = forces;
-    }
 
     @Override
     public void step() {
+
+        //this.particleList = predictParticles();
 
         List<Particle> predictedParticles = predictParticles();
 
@@ -61,11 +49,11 @@ public class GearPredictorCorrectorOrder5 implements TemporalStepAlgorithmInterf
             case 2:
                 return 2;
             case 3:
-                return 9;
+                return 6;
             case 4:
-                return 16;
+                return 24;
             case 5:
-                return 25;
+                return 120;
         }
         return -1;
     }
@@ -88,11 +76,11 @@ public class GearPredictorCorrectorOrder5 implements TemporalStepAlgorithmInterf
             List<Vector> predictedParticleDerivatives = predictedParticles.get(i).getDerivatives();
             Vector R2 = calculatedR2.get(i);
 
-            Particle assocParticle = this.particleList.get(i);
             for(int j=0; j<=5 ; j++){
                 correctedParticleDerivatives.add(correction(predictedParticleDerivatives.get(j), R2, j));
             }
 
+            Particle assocParticle = this.particleList.get(i);
             correctedParticles.add(new Particle(correctedParticleDerivatives, assocParticle.getRadius(), assocParticle.getMass()));
         }
         return correctedParticles;
@@ -118,35 +106,68 @@ public class GearPredictorCorrectorOrder5 implements TemporalStepAlgorithmInterf
         return calculatedR2;
     }
 
+    private double taylor(int order, double[] coefs){
+        double sum = 0;
+        for(int n=0; n<order; n++){
+            double coef = coefs[n];
+            sum += coef*Math.pow(this.step, n)/fact(n);
+        }
+        return sum;
+    }
+
     private List<Particle> predictParticles(){
-        List<Particle> predictedParticles = this.forcesCalculator.calculate(particleList);
+        List<Particle> predictedParticles = new ArrayList<>();
 
-        for(int i=0; i<particleList.size(); i++){
-            List<Vector> currentParticleDerivatives = particleList.get(i).getDerivatives();
-            Particle predictedParticle = predictedParticles.get(i);
+        for (Particle particle : particleList) {
+            List<Vector> currentParticleDerivatives = particle.getDerivatives();
+            double mass = particle.getMass(), radius = particle.getRadius();
 
-            List<Vector> derivatives = predictedParticle.getDerivatives();
-            double x, y;
+            List<Vector> derivatives = new ArrayList<>();
 
-            x = currentParticleDerivatives.get(1).getX() + currentParticleDerivatives.get(2).getX()*this.step +
-                    currentParticleDerivatives.get(3).getX()*Math.pow(this.step, 2)/4 + currentParticleDerivatives.get(4).getX()*Math.pow(this.step, 3)/9 +
-                    currentParticleDerivatives.get(5).getX()*Math.pow(this.step, 4)/16;
+            derivatives.add(new Vector(
+                    taylor(6, new double[]{currentParticleDerivatives.get(0).getX(), currentParticleDerivatives.get(1).getX(),
+                            currentParticleDerivatives.get(2).getX(), currentParticleDerivatives.get(3).getX(),
+                            currentParticleDerivatives.get(4).getX(), currentParticleDerivatives.get(5).getX()}),
+                    taylor(6, new double[]{currentParticleDerivatives.get(0).getY(), currentParticleDerivatives.get(1).getY(),
+                            currentParticleDerivatives.get(2).getY(), currentParticleDerivatives.get(3).getY(),
+                            currentParticleDerivatives.get(4).getY(), currentParticleDerivatives.get(5).getY()})
+            ));
 
-            y = currentParticleDerivatives.get(1).getY() + currentParticleDerivatives.get(2).getY()*this.step +
-                    currentParticleDerivatives.get(3).getY()*Math.pow(this.step, 2)/4 + currentParticleDerivatives.get(4).getY()*Math.pow(this.step, 3)/9 +
-                    currentParticleDerivatives.get(5).getY()*Math.pow(this.step, 4)/16;
+            derivatives.add(new Vector(
+                    taylor(5, new double[]{currentParticleDerivatives.get(1).getX(), currentParticleDerivatives.get(2).getX(),
+                            currentParticleDerivatives.get(3).getX(), currentParticleDerivatives.get(4).getX(),
+                            currentParticleDerivatives.get(5).getX()}),
+                    taylor(5, new double[]{currentParticleDerivatives.get(1).getY(), currentParticleDerivatives.get(2).getY(),
+                            currentParticleDerivatives.get(3).getY(), currentParticleDerivatives.get(4).getY(),
+                            currentParticleDerivatives.get(5).getY()})
+            ));
 
-            derivatives.set(1, new Vector(x, y));
+            derivatives.add(new Vector(
+                    taylor(4, new double[]{currentParticleDerivatives.get(2).getX(), currentParticleDerivatives.get(3).getX(),
+                            currentParticleDerivatives.get(4).getX(), currentParticleDerivatives.get(5).getX()}),
+                    taylor(4, new double[]{currentParticleDerivatives.get(2).getY(), currentParticleDerivatives.get(3).getY(),
+                            currentParticleDerivatives.get(4).getY(), currentParticleDerivatives.get(5).getY()})
+            ));
 
-            x = currentParticleDerivatives.get(0).getX() + currentParticleDerivatives.get(1).getX()*this.step +
-                    currentParticleDerivatives.get(2).getX()*Math.pow(this.step, 2)/4 + currentParticleDerivatives.get(3).getX()*Math.pow(this.step, 3)/9 +
-                    currentParticleDerivatives.get(4).getX()*Math.pow(this.step, 4)/16 + currentParticleDerivatives.get(5).getX()*Math.pow(this.step, 5)/25;
+            derivatives.add(new Vector(
+                    taylor(3, new double[]{currentParticleDerivatives.get(3).getX(), currentParticleDerivatives.get(4).getX(),
+                            currentParticleDerivatives.get(5).getX()}),
+                    taylor(3, new double[]{currentParticleDerivatives.get(3).getY(), currentParticleDerivatives.get(4).getY(),
+                            currentParticleDerivatives.get(5).getY()})
+            ));
 
-            y = currentParticleDerivatives.get(0).getY() + currentParticleDerivatives.get(1).getY()*this.step +
-                    currentParticleDerivatives.get(2).getY()*Math.pow(this.step, 2)/4 + currentParticleDerivatives.get(3).getY()*Math.pow(this.step, 3)/9 +
-                    currentParticleDerivatives.get(4).getY()*Math.pow(this.step, 4)/16 + currentParticleDerivatives.get(5).getY()*Math.pow(this.step, 5)/25;
+            derivatives.add(new Vector(
+                    taylor(2, new double[]{currentParticleDerivatives.get(4).getX(), currentParticleDerivatives.get(5).getX()}),
+                    taylor(2, new double[]{currentParticleDerivatives.get(4).getY(), currentParticleDerivatives.get(5).getY()})
+            ));
 
-            derivatives.set(0, new Vector(x, y));
+            derivatives.add(new Vector(
+                    taylor(1, new double[]{currentParticleDerivatives.get(5).getX()}),
+                    taylor(1, new double[]{currentParticleDerivatives.get(5).getY()})
+            ));
+
+            predictedParticles.add(new Particle(derivatives, radius, mass));
+
         }
 
         return predictedParticles;

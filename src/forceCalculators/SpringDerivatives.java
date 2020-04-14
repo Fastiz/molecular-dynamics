@@ -1,17 +1,17 @@
 package forceCalculators;
 
-import interfaces.ForcesCalculator;
+import interfaces.DerivativesCalculator;
 import models.Particle;
 import models.Vector;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class SpringModel implements ForcesCalculator {
+public class SpringDerivatives implements DerivativesCalculator {
 
     private double k, gamma;
 
-    public SpringModel(double k, double gamma){
+    public SpringDerivatives(double k, double gamma){
         this.k = k;
         this.gamma = gamma;
     }
@@ -25,13 +25,18 @@ public class SpringModel implements ForcesCalculator {
 
             List<Vector> derivatives = new ArrayList<>();
 
-            derivatives.add(particle.getPos());
-            derivatives.add(particle.getVel());
+            Vector pos = particle.getPos(),
+                    vel = particle.getVel();
 
-            double x, y;
-            x = -particle.getDerivatives().get(0).getX()*this.k - particle.getDerivatives().get(1).getX()*this.gamma;
-            y = -particle.getDerivatives().get(0).getY()*this.k - particle.getDerivatives().get(1).getY()*this.gamma;
-            derivatives.add(new Vector(x/mass, y/mass));
+            derivatives.add(pos);
+            derivatives.add(vel);
+
+            for(int i=2; i<=5; i++){
+                derivatives.add(new Vector(
+                        (-derivatives.get(i-2).getX()*this.k - derivatives.get(i-1).getX()*this.gamma)/mass,
+                        (-derivatives.get(i-2).getY()*this.k - derivatives.get(i-1).getY()*this.gamma)/mass
+                ));
+            }
 
             resultForces.add(new Particle(derivatives, radius, mass));
         }
