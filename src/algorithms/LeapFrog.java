@@ -9,17 +9,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class LeapFrog implements TemporalStepAlgorithmInterface {
-    private static double TEMP_STEP = 0.005;
-    private static double HALF_TEMP_STEP;
+    private double TEMP_STEP;
+    private double HALF_TEMP_STEP;
     private List<Vector> halfPreviousVels;
     private List<Vector> halfNextVels;
     private List<Particle> particles;
     private ForcesCalculator forcesCalculator;
 
-    public LeapFrog(ForcesCalculator forcesCalculator, List<Particle> particles) {
+    public LeapFrog(List<Particle> particles, ForcesCalculator forcesCalculator, double step) {
         halfNextVels = new ArrayList<>(particles.size());
         this.forcesCalculator = forcesCalculator;
         this.particles = particles;
+        this.TEMP_STEP = step;
         HALF_TEMP_STEP = TEMP_STEP / 2;
 
         this.particles = forcesCalculator.calculate(particles);

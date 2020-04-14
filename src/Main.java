@@ -19,12 +19,27 @@ public class Main {
         List<Particle> particles = new ArrayList<>();
         particles.add(new Particle(1, 0, -GAMMA/(2*MASS), 0, 1, MASS));
 
-        TemporalStepAlgorithmInterface algorithm = new GearPredictorCorrectorOrder5(particles,
+        TemporalStepAlgorithmInterface algorithm;
+
+        algorithm = new GearPredictorCorrectorOrder5(particles,
                 new SpringModel(K, GAMMA), STEP, new SpringDerivatives(K, GAMMA));
+        try(BufferedWriter bw = new BufferedWriter(new FileWriter("spring_gear_predictor_corrector"))){
+            for(int t=0; t<5.0/STEP; t++){
+                bw.write(algorithm.getParticles().get(0).getPos().getX() + "\n");
+                algorithm.step();
+            }
+        }
 
-        //TemporalStepAlgorithmInterface algorithm = new LeapFrog(new SpringModel(10000, 1000), particles);
+        algorithm = new LeapFrog(particles, new SpringModel(K, GAMMA), STEP);
+        try(BufferedWriter bw = new BufferedWriter(new FileWriter("spring_leap_frog"))){
+            for(int t=0; t<5.0/STEP; t++){
+                bw.write(algorithm.getParticles().get(0).getPos().getX() + "\n");
+                algorithm.step();
+            }
+        }
 
-        try(BufferedWriter bw = new BufferedWriter(new FileWriter("output"))){
+        algorithm = new Beeman(particles, new SpringModel(K, GAMMA), STEP);
+        try(BufferedWriter bw = new BufferedWriter(new FileWriter("spring_beeman"))){
             for(int t=0; t<5.0/STEP; t++){
                 bw.write(algorithm.getParticles().get(0).getPos().getX() + "\n");
                 algorithm.step();

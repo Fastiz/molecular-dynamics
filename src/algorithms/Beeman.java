@@ -11,16 +11,16 @@ import java.util.List;
 
 public class Beeman implements TemporalStepAlgorithmInterface {
 
-    private static double TEMP_STEP = 0.01;
+    private double TEMP_STEP;
     private List<Particle> previousParticles;
     private List<Particle> particles;
     private ForcesCalculator forcesCalculator;
 
-    public Beeman(ForcesCalculator forcesCalculator, List<Particle> particles) {
+    public Beeman(List<Particle> particles, ForcesCalculator forcesCalculator, double step) {
         this.forcesCalculator = forcesCalculator;
         this.particles = particles;
+        this.TEMP_STEP = step;
         estimatePrevious();
-        System.out.println(previousParticles.get(0).getPos());
     }
 
     public void step() {
