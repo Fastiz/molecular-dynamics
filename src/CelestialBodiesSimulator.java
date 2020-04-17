@@ -11,6 +11,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CelestialBodiesSimulator {
+
+    private static final double MARS_X = -2.4712389774953e7;
+    private static final double MARS_Y = -2.1837372294411e8;
+    private static final double MARS_MASS = 6.4171e23;
+
+    private static final double EARTH_X = -1.4362322641829e8;
+    private static final double EARTH_Y = -4.2221842462959e7;
+    private static final double EARTH_MASS = -5.97219e24;
+
+    private static final double SUN_MASS = -1.988500e30;
+
     public CelestialBodiesSimulator() throws IOException {
         List<Particle> particlesList = new ArrayList<>();
         particlesList.add(new Particle(new Vector(100, 0), new Vector(0, 0), 20, 10000000));
