@@ -33,6 +33,10 @@ public class Vector {
         return new Vector(c.x*scalar, c.y*scalar);
     }
 
+    public double magnitude(){
+        return Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
+    }
+
     @Override
     public String toString() {
         return "(" + this.x +", " + this.y + ")";
