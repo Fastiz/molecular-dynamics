@@ -10,8 +10,8 @@ import java.util.List;
 
 public class GravityModel implements ForcesCalculator {
 
-    private static final double GRAVITATIONAL_CONSTANT = 0.00000000006674;
-
+    // km * kg^-1 * s^2
+    private static final double GRAVITATIONAL_CONSTANT = 6.674e-20;
 
     private double distance(Vector pos1, Vector pos2){
         return Math.sqrt(squaredDistance(pos1, pos2));
@@ -36,7 +36,7 @@ public class GravityModel implements ForcesCalculator {
                     double ex = (jParticle.getPos().getX() - iParticle.getPos().getX())/distance(jParticle.getPos(), iParticle.getPos()),
                             ey = (jParticle.getPos().getY() - iParticle.getPos().getY())/distance(jParticle.getPos(), iParticle.getPos());
 
-                    double forceModule = - GRAVITATIONAL_CONSTANT * iParticle.getMass() * jParticle.getMass() / (squaredDistance(iParticle.getPos(), jParticle.getPos()));
+                    double forceModule = GRAVITATIONAL_CONSTANT * iParticle.getMass() * jParticle.getMass() / (squaredDistance(iParticle.getPos(), jParticle.getPos()));
 
                     forcesMatrix[i][j] = new Vector(ex*forceModule, ey*forceModule);
                 }
