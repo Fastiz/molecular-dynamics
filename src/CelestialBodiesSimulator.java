@@ -14,10 +14,14 @@ public class CelestialBodiesSimulator {
 
     private static final double MARS_X = -2.4712389774953e7;
     private static final double MARS_Y = -2.1837372294411e8;
+    private static final double MARS_VX = -2.1592385023657e6;
+    private static final double MARS_VY = -5.5402518882982e4;
     private static final double MARS_MASS = 6.4171e23;
 
     private static final double EARTH_X = -1.4362322641829e8;
     private static final double EARTH_Y = -4.2221842462959e7;
+    private static final double EARTH_VX = 6.8410692028288e5;
+    private static final double EARTH_VY = -2.4778405890091e6;
     private static final double EARTH_MASS = -5.97219e24;
 
     private static final double SUN_MASS = -1.988500e30;
