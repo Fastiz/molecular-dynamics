@@ -24,6 +24,15 @@ public class Vector {
         this.y = y;
     }
 
+    public void sum(Vector v){
+        this.x += v.x;
+        this.y += v.y;
+    }
+
+    public static Vector scalarMultiplicationVector(double scalar, Vector c){
+        return new Vector(c.x*scalar, c.y*scalar);
+    }
+
     @Override
     public String toString() {
         return "(" + this.x +", " + this.y + ")";

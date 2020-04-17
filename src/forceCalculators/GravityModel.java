@@ -12,49 +12,52 @@ public class GravityModel implements ForcesCalculator {
 
     private static final double GRAVITATIONAL_CONSTANT = 0.00000000006674;
 
-    private double magnitude(Vector pos){
-        return Math.sqrt(Math.pow(pos.getX(), 2) + Math.pow(pos.getY(), 2));
-    }
-
-    private double radians(Vector pos1, Vector pos2){
-        return Math.atan2(pos2.getY()-pos1.getY(), pos2.getX()-pos1.getX());
-    }
 
     private double distance(Vector pos1, Vector pos2){
-        return Math.sqrt(Math.pow(pos1.getX()-pos2.getX(), 2) + Math.pow(pos1.getY()-pos2.getY(), 2));
+        return Math.sqrt(squaredDistance(pos1, pos2));
+    }
+
+    private double squaredDistance(Vector pos1, Vector pos2){
+        return Math.pow(pos1.getX()-pos2.getX(), 2) + Math.pow(pos1.getY()-pos2.getY(), 2);
     }
 
     @Override
     public List<Particle> calculate(List<Particle> particleList) {
         List<Particle> forces = new ArrayList<>();
 
-        for(Particle particle : particleList){
+        Vector[][] forcesMatrix = new Vector[particleList.size()][particleList.size()];
+        for(int i=0; i<particleList.size(); i++){
+            for(int j=0; j<particleList.size(); j++){
+                if(i==j){
+                    forcesMatrix[i][j] = new Vector(0, 0);
+                }else{
+                    Particle iParticle = particleList.get(i), jParticle = particleList.get(j);
 
-            Particle newForce = new Particle(particle.getPos(), particle.getVel(), particle.getRadius(), particle.getMass());
-            List<Vector> derivatives = newForce.getDerivatives();
+                    double ex = (jParticle.getPos().getX() - iParticle.getPos().getX())/distance(jParticle.getPos(), iParticle.getPos()),
+                            ey = (jParticle.getPos().getY() - iParticle.getPos().getY())/distance(jParticle.getPos(), iParticle.getPos());
 
-            for(Particle otherParticle : particleList){
-                double radians = radians(particle.getPos(), otherParticle.getPos());
-                double otherMass = otherParticle.getMass();
-                List<Vector> otherDerivatives = otherParticle.getDerivatives();
+                    double forceModule = - GRAVITATIONAL_CONSTANT * iParticle.getMass() * jParticle.getMass() / (squaredDistance(iParticle.getPos(), jParticle.getPos()));
 
-                double forceMagnitude;
-
-                forceMagnitude = GRAVITATIONAL_CONSTANT*otherMass/Math.pow(distance(otherDerivatives.get(0),
-                        derivatives.get(0)), 2);
-                Vector r2 = new Vector(derivatives.get(2).getX()+forceMagnitude*Math.cos(radians),
-                        derivatives.get(2).getX()+forceMagnitude*Math.sin(radians));
-
-                forceMagnitude = GRAVITATIONAL_CONSTANT*otherMass/Math.pow(distance(otherDerivatives.get(0),
-                        derivatives.get(0)), 4)*magnitude(derivatives.get(1));
-                Vector r3 = new Vector(derivatives.get(2).getX()+forceMagnitude*Math.cos(radians),
-                        derivatives.get(2).getX()+forceMagnitude*Math.sin(radians));
-
-                forceMagnitude = GRAVITATIONAL_CONSTANT*otherMass/Math.pow(distance(otherDerivatives.get(0),
-                        derivatives.get(0)), 4)*magnitude(derivatives.get(1));
-                Vector r4 = new Vector(derivatives.get(2).getX()+forceMagnitude*Math.cos(radians),
-                        derivatives.get(2).getX()+forceMagnitude*Math.sin(radians));
+                    forcesMatrix[i][j] = new Vector(ex*forceModule, ey*forceModule);
+                }
             }
+        }
+
+        for(int i=0; i<particleList.size(); i++){
+            Particle particle = particleList.get(i);
+            List<Vector> derivatives = new ArrayList<>();
+
+            derivatives.add(particle.getPos());
+            derivatives.add(particle.getVel());
+
+            Vector acc = new Vector(0,0);
+            for(int j=0; j<forcesMatrix.length; j++){
+                acc.sum(forcesMatrix[i][j]);
+            }
+
+            derivatives.add(Vector.scalarMultiplicationVector(1/particle.getMass(),acc));
+
+            forces.add(new Particle(derivatives, particle.getRadius(), particle.getMass()));
         }
 
         return forces;
