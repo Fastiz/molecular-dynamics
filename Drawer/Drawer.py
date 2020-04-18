@@ -69,22 +69,18 @@ class Drawer:
         pygame.draw.rect(self.DISPLAY, color,
                          (x, y, self.boxSize * boxAmount, self.boxSize * boxAmount))
 
-    def cleanEmptySquares(self):
-        for y in range(len(self.map)):
-            for x in range(len(self.map[y])):
-                if self.map[y][x] == -1:
-                    self.drawSquare(x, y, self.BLUE)
-
     def drawCircles(self, positions):
         i = 0
 
-        pygame.draw.circle(self.DISPLAY, self.BIGCOLOR, (int(self.X_OFFSET + self.boxSize * (positions[0][0] + (self.mapSize/2))), int(self.Y_OFFSET + self.boxSize * (positions[0][1] + (self.mapSize/2)))), self.boxSize * 20)
+        pygame.draw.circle(self.DISPLAY, self.BIGCOLOR, (int(self.X_OFFSET + self.boxSize * (positions[0][0] + (self.mapSize/2))), int(self.Y_OFFSET + self.boxSize * (positions[0][1] + (self.mapSize/2)))), self.boxSize * 5)
 
         for position in positions:
             if i == 1:
-                pygame.draw.circle(self.DISPLAY, self.SMALLCOLOR, (int(self.X_OFFSET + self.boxSize * (position[0] + (self.mapSize/2))), int(self.Y_OFFSET + self.boxSize * (position[1] + (self.mapSize/2)))), self.boxSize * 2)
+                pygame.draw.circle(self.DISPLAY, self.SMALLCOLOR, (int(self.X_OFFSET + self.boxSize * (position[0] + (self.mapSize/2))), int(self.Y_OFFSET + self.boxSize * (position[1] + (self.mapSize/2)))), int(self.boxSize * 1))
             if i == 2:
-                pygame.draw.circle(self.DISPLAY, self.ORANGE, (int(self.X_OFFSET + self.boxSize * (position[0] + (self.mapSize/2))), int(self.Y_OFFSET + self.boxSize * (position[1] + (self.mapSize/2)))), self.boxSize * 1)
+                pygame.draw.circle(self.DISPLAY, self.ORANGE, (int(self.X_OFFSET + self.boxSize * (position[0] + (self.mapSize/2))), int(self.Y_OFFSET + self.boxSize * (position[1] + (self.mapSize/2)))), int(self.boxSize * 2))
+            if i == 3:
+                pygame.draw.circle(self.DISPLAY, self.WHITE, (int(self.X_OFFSET + self.boxSize * (position[0] + (self.mapSize/2))), int(self.Y_OFFSET + self.boxSize * (position[1] + (self.mapSize/2)))), int(self.boxSize * 0.5))
             i += 1
 
     def update(self, positions):
