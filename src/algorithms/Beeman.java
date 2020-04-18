@@ -1,6 +1,5 @@
 package algorithms;
 
-import com.sun.xml.internal.ws.wsdl.writer.document.Part;
 import interfaces.ForcesCalculator;
 import interfaces.TemporalStepAlgorithmInterface;
 import models.Particle;
