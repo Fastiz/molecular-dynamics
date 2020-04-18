@@ -1,63 +1,49 @@
-import sys
 
 class FilesReader:
+    def __init__(self, dynamic_path, static_path):
+        self.dynamicLines = open(dynamic_path, "r").read().splitlines()
+        self.dynamicLineIndex = 1
+        self.particles_radius = None
+        self.particles_color = None
+        self.dimensions = None
 
-    dynamicFile = None
-    staticFile = None
+        self.read_static(static_path)
 
-    height = 0
-    width = 0
-    particles = 0
-    iterations = 0
-    chunkSize = 0
-    map = None
-
-    dynamicLineNumber = 0
-    dynamicLines = None
-
-    maxVel = 0
-
-    def __init__(self, path):
-        self.dynamicFile = open(path, "r")
-        self.dynamicLines = self.dynamicFile.readlines()
-
-    def readMapSize(self, line):
+    def read_map_size(self, line):
         array = line.split()
-        self.height = array[0]
-        self.width = array[1]
+        self.dimensions = (float(array[0]), float(array[1]))
 
-    def readPosition(self, line):
-        pos = [0, 0]
-        i = 0
-        for num in line.split():
-            pos[i] = float(num) / 5000000
-            i += 1
-        return pos
-
-
-    def readNextPosition(self):
+    def read_next_position(self):
         lines = self.dynamicLines
+        positions = []
 
-        if len(lines) > self.dynamicLineNumber:
-            line = lines[self.dynamicLineNumber]
+        while self.dynamicLineIndex < len(lines)-1 and lines[self.dynamicLineIndex][0] != '#':
+            line = lines[self.dynamicLineIndex]
+            x, y = line.split(" ")
+            positions.append((float(x), float(y)))
+            self.dynamicLineIndex += 1
 
-            while line[0] == '#':
-                self.dynamicLineNumber += 1
-                line = lines[self.dynamicLineNumber]
+        if not self.dynamicLineIndex < len(lines):
+            return None
 
-            endNumber = self.dynamicLineNumber
-            while line[0] != '#' and endNumber < len(lines) - 1:
-                endNumber += 1
-                line = lines[endNumber]
+        self.dynamicLineIndex += 1
 
-            positions = [self.readPosition(line) for line in lines[self.dynamicLineNumber:endNumber]]
+        return positions
 
-            self.dynamicLineNumber = endNumber
-            return positions
+    def read_static(self, path):
+        static_file = open(path, "r")
 
-    def readStatic(self, path):
-        self.staticFile = open(path, "r")
-        lines = self.staticFile.readlines()
-        line = lines[0]
-        mapSize = float(line.split()[0]) / 5000000
-        return mapSize
+        lines = static_file.read().splitlines()
+
+        self.read_map_size(lines[0])
+
+        self.particles_radius = []
+
+        for line in lines[1:]:
+            self.particles_radius.append(float(line))
+
+    def get_particles_radius(self):
+        return self.particles_radius
+
+    def get_dimensions(self):
+        return self.dimensions

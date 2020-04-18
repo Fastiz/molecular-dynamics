@@ -1,99 +1,48 @@
-from __future__ import division
 import pygame
-from pygame.locals import *
-import numpy as np
-import random
-import math
-import time
+
 import pygame.gfxdraw
-from matplotlib import pyplot as plt
-from matplotlib import colors
-from matplotlib import cm as cmx
 
 
 class Drawer:
-    DISPLAY = None
-    MAIN_SURFACE = None
-    SECONDARY_SURFACE = None
-    xResolution = 1920
-    yResolution = 1080
-    WHITE = (255, 255, 255)
-    RED = (255, 40, 40)
-    BLUE = (35, 55, 184)
-    YELLOW = (252, 211, 3)
-    BLACK = (25, 25, 25)
-    ORANGE = (255, 170, 0)
-    BACKGROUND = BLACK
-    TRACECOLOR = RED
-    MAPBORDER = WHITE
-    BIGCOLOR = YELLOW
-    SMALLCOLOR = BLUE
-    boxSize = 0
-    mapSize = 0
-    maxSpeed = 0
-    X_OFFSET = 0
-    Y_OFFSET = 0
+    BORDER_COLOR = (255, 255, 255)
+    BORDER_WIDTH = 3
 
-    def __init__(self, mapSize):
-        pygame.init()
-        print mapSize
-        self.mapSize = int(mapSize)
-        self.calculateSizes()
+    MARGIN = 100
 
-    def calculateSizes(self):
-        width = self.xResolution
-        height = self.yResolution
-        self.boxSize = int(min(width / self.mapSize, height / self.mapSize))
-        self.X_OFFSET = (width - (self.mapSize * self.boxSize)) / 2
-        self.Y_OFFSET = (height - (self.mapSize * self.boxSize)) / 2
-        self.DISPLAY = pygame.display.set_mode((self.xResolution, self.yResolution), pygame.FULLSCREEN, 32)
-        self.DISPLAY.fill(self.BACKGROUND)
+    def __init__(self, screen, dimensions):
+        self.resolution = pygame.display.get_surface().get_size()
+        self.screen = screen
+        self.realDimensions = dimensions
 
-    def writeText(self, x, y, text, size, color):
-        font = pygame.font.SysFont("Arial", size)
-        label = font.render(text, 1, color)
-        self.DISPLAY.blit(label, (x * self.boxSize, y * self.boxSize))
+        map_x, map_y = dimensions
+        res_x, res_y = pygame.display.get_surface().get_size()
+        self.SCREEN_CENTER = (int(res_x/2), int(res_y/2))
+        if map_x > map_y:
+            self.X_SIZE = res_x - 2 * self.MARGIN
+            self.Y_SIZE = self.X_SIZE * (map_y / map_x)
+            self.X_OFFSET = self.MARGIN
+            self.Y_OFFSET = (res_y - self.Y_SIZE)/2
+        else:
+            self.Y_SIZE = res_y - 2 * self.MARGIN
+            self.X_SIZE = self.Y_SIZE * (map_x / map_y)
+            self.Y_OFFSET = self.MARGIN
+            self.X_OFFSET = (res_x - self.X_SIZE)/2
 
-    def drawWalls(self):
-        self.DISPLAY.fill(self.BACKGROUND)
-        w, h = pygame.display.get_surface().get_size()
-        for x in range(0, self.mapSize):
-            self.drawSquare(self.X_OFFSET + (x * self.boxSize), self.Y_OFFSET, self.MAPBORDER)
-            self.drawSquare(self.X_OFFSET + (x * self.boxSize), self.Y_OFFSET + self.boxSize * (self.mapSize - 1), self.MAPBORDER)
+    def normalize_distance_magnitude(self, magnitude):
+        return magnitude * max(self.X_SIZE, self.Y_SIZE) / max(self.realDimensions[0], self.realDimensions[1])
 
-        for y in range(0, self.mapSize):
-            self.drawSquare(self.X_OFFSET, self.Y_OFFSET + (self.boxSize * y), self.MAPBORDER)
-            self.drawSquare(self.X_OFFSET + self.boxSize * (self.mapSize - 1), self.Y_OFFSET + (self.boxSize * y), self.MAPBORDER)
+    def draw_walls(self):
+        pygame.draw.rect(self.screen, self.BORDER_COLOR, pygame.Rect(self.X_OFFSET, self.Y_OFFSET, self.X_SIZE,
+                                                                     self.Y_SIZE), self.BORDER_WIDTH)
 
-    def drawSquare(self, x, y, color, boxAmount=1):
-        pygame.draw.rect(self.DISPLAY, color,
-                         (x, y, self.boxSize * boxAmount, self.boxSize * boxAmount))
+    def draw_particles(self, particles):
+        for particle in particles:
+            x, y = particle.get_pos()
+            pygame.draw.circle(self.screen, particle.get_color(), (int(self.normalize_distance_magnitude(x) + self.SCREEN_CENTER[0]),
+                                                                   int(self.normalize_distance_magnitude(
+                                                                       y) + self.SCREEN_CENTER[1])), int(particle.get_radius()))
 
-    def drawCircles(self, positions):
-        i = 0
-
-        pygame.draw.circle(self.DISPLAY, self.BIGCOLOR, (int(self.X_OFFSET + self.boxSize * (positions[0][0] + (self.mapSize/2))), int(self.Y_OFFSET + self.boxSize * (positions[0][1] + (self.mapSize/2)))), self.boxSize * 5)
-
-        for position in positions:
-            if i == 1:
-                pygame.draw.circle(self.DISPLAY, self.SMALLCOLOR, (int(self.X_OFFSET + self.boxSize * (position[0] + (self.mapSize/2))), int(self.Y_OFFSET + self.boxSize * (position[1] + (self.mapSize/2)))), int(self.boxSize * 1))
-            if i == 2:
-                pygame.draw.circle(self.DISPLAY, self.ORANGE, (int(self.X_OFFSET + self.boxSize * (position[0] + (self.mapSize/2))), int(self.Y_OFFSET + self.boxSize * (position[1] + (self.mapSize/2)))), int(self.boxSize * 2))
-            if i == 3:
-                pygame.draw.circle(self.DISPLAY, self.WHITE, (int(self.X_OFFSET + self.boxSize * (position[0] + (self.mapSize/2))), int(self.Y_OFFSET + self.boxSize * (position[1] + (self.mapSize/2)))), int(self.boxSize * 0.5))
-            i += 1
-
-    def update(self, positions):
-        for event in pygame.event.get():
-            if event.type == QUIT:
-                pygame.quit()
-        self.drawWalls()
-        self.drawCircles(positions)
-        pygame.display.update()
-
-    def firstUpdate(self):
-        for event in pygame.event.get():
-            if event.type == QUIT:
-                pygame.quit()
-        self.drawWalls()
+    def update(self, particles):
+        self.draw_walls()
+        self.draw_particles(particles)
         pygame.display.update()

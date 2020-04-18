@@ -1,19 +1,74 @@
-
 import time
+
+import pygame
+
 from Drawer import Drawer
 from FilesReader import FilesReader
+from Particle import Particle
+
 
 class SimulationRunner:
 
-    def runSingleSimulation(self, path):
-        reader = FilesReader(path + 'dynamic_file')
-        mapSize = reader.readStatic(path + 'static_file')
-        print(mapSize)
-        drawer = Drawer(mapSize)
-        positions = reader.readNextPosition()
-        drawer.firstUpdate()
-        time.sleep(1)
+    COLORS = [(252, 198, 3), (3, 84, 145), (252, 90, 3), (255, 255, 255)]
+    RADIUS = [20, 12, 8, 3]
 
-        while len(positions) > 0:
-            drawer.update(positions)
-            positions = reader.readNextPosition()
+    def __init__(self, path):
+        self.reader = FilesReader(path + 'dynamic_file', path + 'static_file')
+        self.drawer = None
+
+        self.run_single_simulation()
+
+    def read_positions(self):
+        positions = self.reader.read_next_position()
+        if positions is None:
+            return None
+
+        particles = []
+        for i in range(len(positions)):
+            particles.append(Particle(positions[i], self.RADIUS[i], self.COLORS[i]))
+
+        return particles
+
+    def run_single_simulation(self):
+        # Initialise screen
+        pygame.init()
+        screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+        #screen = pygame.display.set_mode((500, 500))
+
+        # Fill background
+        background = pygame.Surface(screen.get_size())
+        background = background.convert()
+        background.fill((0, 0, 0))
+
+        # Display some text
+        font = pygame.font.Font(None, 30)
+        text = font.render("ESC to exit", 1, (255, 255, 255))
+        textpos = text.get_rect()
+        textpos.centerx = 60
+        textpos.centery = 10
+        background.blit(text, textpos)
+
+        # Blit everything to the screen
+        screen.blit(background, (0, 0))
+        pygame.display.flip()
+
+        drawer = Drawer(screen, self.reader.dimensions)
+
+        running = True
+        while running:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_ESCAPE:
+                        running = False
+            particles = self.read_positions()
+
+            if particles is None:
+                break
+
+            screen.blit(background, (0, 0))
+
+            drawer.update(particles)
+
+            pygame.display.flip()
