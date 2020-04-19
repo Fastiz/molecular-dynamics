@@ -1,17 +1,18 @@
 import algorithms.Beeman;
-import algorithms.LeapFrog;
 import forceCalculators.GravityModel;
 import interfaces.TemporalStepAlgorithmInterface;
-import models.Particle;
-import models.Vector;
 
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CelestialBodiesSimulator {
+import models.Particle;
+import models.Vector;
+
+public class CelestialBodiesSimulatorOptimalTime {
 
     private static final double MARS_X = -2.4712389774953e7;
     private static final double MARS_Y = -2.1837372294411e8;
@@ -39,51 +40,55 @@ public class CelestialBodiesSimulator {
     private static final double SPACESHIP_VX = SPACESHIP_V * Math.cos(EARTH_V_ANGLE);
     private static final double SPACESHIP_VY = SPACESHIP_V * Math.sin(EARTH_V_ANGLE);
 
-    public CelestialBodiesSimulator() throws IOException {
+    public CelestialBodiesSimulatorOptimalTime() throws IOException {
         List<Particle> particlesList = new ArrayList<>();
         particlesList.add(new Particle(new Vector(0, 0), new Vector(0, 0), 20, SUN_MASS));
         particlesList.add(new Particle(new Vector(EARTH_X, EARTH_Y), new Vector(EARTH_VX, EARTH_VY), 30, EARTH_MASS));
         particlesList.add(new Particle(new Vector(MARS_X, MARS_Y), new Vector(MARS_VX, MARS_VY), 30, MARS_MASS));
 
-        System.out.println(EARTH_ANGLE);
 
-        System.out.println(EARTH_V);
-        System.out.println(EARTH_VX + ", " + EARTH_VY);
-        System.out.println(SPACESHIP_V);
-        System.out.println(SPACESHIP_VX + ", " + SPACESHIP_VY);
-        System.out.println();
-        System.out.println(EARTH_DISTANCE);
-        System.out.println(EARTH_X + ", " + EARTH_Y);
-        System.out.println(SPACESHIP_DISTANCE);
-        System.out.println(SPACESHIP_X + ", " + SPACESHIP_Y);
-        particlesList.add(new Particle(new Vector(SPACESHIP_X , SPACESHIP_Y), new Vector(SPACESHIP_VX, SPACESHIP_VY), 30, SPACESHIP_MASS));
+        (new File("results/gravity/")).mkdir();
 
-        TemporalStepAlgorithmInterface algorithm = new Beeman(particlesList, new GravityModel(), 100);
+        Utils.deleteFiles("results/gravity/");
 
-        double maxMagnitude = 0;
-        try(BufferedWriter bf = new BufferedWriter(new FileWriter("dynamic_file"))){
-            for(long t=0; t<10000000; t++){
-                if(t % 1000 == 0) {
-                    bf.write("#T" + t + "\n");
-                    List<Particle> current = algorithm.getParticles();
-                    for (Particle particle : current) {
-                        Vector pos = particle.getPos();
+        int TIME_STEP = 1000;
+        int TIME_ITERATIONS = 100;
 
-                        double magnitude = pos.magnitude();
+        for(int it=1; it<TIME_ITERATIONS+1; it++){
+            System.out.println("Simulating launch with offset: " + TIME_STEP*it +" s and index: " + it +".");
 
-                        maxMagnitude = Math.max(magnitude, maxMagnitude);
+            try(BufferedWriter bf = new BufferedWriter(new FileWriter("results/gravity/sim"+it))){
+                Beeman algorithm = new Beeman(new ArrayList<>(particlesList), new GravityModel(), 100);
 
-                        bf.write(pos.getX() + " " + pos.getY() + "\n");
+                bf.write((it*TIME_STEP/1000) + "\n");
+                for(long t=0; t<1000000; t++){
+                    if(t == it*TIME_STEP){
+                        Particle earth = algorithm.getParticles().get(1);
+
+                        double EARTH_V_ANGLE = Math.atan(earth.getVel().getY() / earth.getVel().getX());
+                        double EARTH_ANGLE = Math.atan2(earth.getPos().getY(), earth.getPos().getX());
+                        double SPACESHIP_DISTANCE = earth.getPos().magnitude() + 1500;
+                        double SPACESHIP_X = SPACESHIP_DISTANCE * Math.cos(EARTH_ANGLE);
+                        double SPACESHIP_Y = SPACESHIP_DISTANCE * Math.sin(EARTH_ANGLE);
+                        double SPACESHIP_VX = SPACESHIP_V * Math.cos(EARTH_V_ANGLE);
+                        double SPACESHIP_VY = SPACESHIP_V * Math.sin(EARTH_V_ANGLE);
+
+                        algorithm.addParticle(new Particle(new Vector(SPACESHIP_X , SPACESHIP_Y), new Vector(SPACESHIP_VX, SPACESHIP_VY), 30, SPACESHIP_MASS));
                     }
-                }
-                algorithm.step();
-            }
-        }
 
-        try(BufferedWriter bf = new BufferedWriter(new FileWriter("static_file"))){
-            bf.write(2 * maxMagnitude + " " + 2 * maxMagnitude + "\n");
-            for(Particle particle : particlesList){
-                bf.write(particle.getRadius()+"\n");
+                    if(t % 1000 == 0) {
+                        bf.write("#T" + t + "\n");
+                        List<Particle> current = algorithm.getParticles();
+                        for (Particle particle : current) {
+                            Vector pos = particle.getPos();
+
+                            bf.write(pos.getX() + " " + pos.getY() + "\n");
+                        }
+
+                    }
+
+                    algorithm.step();
+                }
             }
         }
 
