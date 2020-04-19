@@ -19,7 +19,7 @@ public class Beeman implements TemporalStepAlgorithmInterface {
         this.forcesCalculator = forcesCalculator;
         this.particles = particles;
         this.TEMP_STEP = step;
-        estimatePrevious();
+        estimateAllPrevious();
     }
 
     public void step() {
@@ -77,20 +77,35 @@ public class Beeman implements TemporalStepAlgorithmInterface {
         return vel + (newAcel * TEMP_STEP / 3) + (5 * acel * TEMP_STEP / 6) - (previousAcel * TEMP_STEP / 6);
     }
 
-    private void estimatePrevious() {
+    private void addParticle(Particle particle) {
+        particles.add(particle);
+        addEstimation(particle);
+    }
+
+    private void addEstimation(Particle particle) {
+        particles = forcesCalculator.calculate(particles);
+        previousParticles.add(new Particle(getDerivatives(particle), particle.getRadius(), particle.getMass()));
+        previousParticles = forcesCalculator.calculate(previousParticles);
+    }
+
+    private void estimateAllPrevious() {
         previousParticles = new ArrayList<>();
         particles = forcesCalculator.calculate(particles);
         for(Particle particle : particles) {
-            List<Vector> derivates = new ArrayList<>();
-            double x = particle.getPos().getX() - (TEMP_STEP * particle.getVel().getX()) + (Math.pow(TEMP_STEP, 2) * particle.getAcel().getX() /  2);
-            double y = particle.getPos().getY() - (TEMP_STEP * particle.getVel().getY()) + (Math.pow(TEMP_STEP, 2) * particle.getAcel().getY() / 2);
-            derivates.add(new Vector(x,y));
-            double vx = particle.getVel().getX() - (TEMP_STEP * particle.getAcel().getX());
-            double vy = particle.getVel().getY() - (TEMP_STEP * particle.getAcel().getY());
-            derivates.add(new Vector(vx,vy));
-            previousParticles.add(new Particle(derivates, particle.getRadius(), particle.getMass()));
+            previousParticles.add(new Particle(getDerivatives(particle), particle.getRadius(), particle.getMass()));
         }
 
         previousParticles = forcesCalculator.calculate(previousParticles);
+    }
+
+    private List<Vector> getDerivatives(Particle particle) {
+        List<Vector> derivatives = new ArrayList<>();
+        double x = particle.getPos().getX() - (TEMP_STEP * particle.getVel().getX()) + (Math.pow(TEMP_STEP, 2) * particle.getAcel().getX() /  2);
+        double y = particle.getPos().getY() - (TEMP_STEP * particle.getVel().getY()) + (Math.pow(TEMP_STEP, 2) * particle.getAcel().getY() / 2);
+        derivatives.add(new Vector(x,y));
+        double vx = particle.getVel().getX() - (TEMP_STEP * particle.getAcel().getX());
+        double vy = particle.getVel().getY() - (TEMP_STEP * particle.getAcel().getY());
+        derivatives.add(new Vector(vx,vy));
+        return derivatives;
     }
 }
