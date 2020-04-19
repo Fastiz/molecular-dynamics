@@ -77,13 +77,14 @@ public class Beeman implements TemporalStepAlgorithmInterface {
         return vel + (newAcel * TEMP_STEP / 3) + (5 * acel * TEMP_STEP / 6) - (previousAcel * TEMP_STEP / 6);
     }
 
-    private void addParticle(Particle particle) {
+    public void addParticle(Particle particle) {
         particles.add(particle);
-        addEstimation(particle);
+        addEstimation();
     }
 
-    private void addEstimation(Particle particle) {
+    private void addEstimation() {
         particles = forcesCalculator.calculate(particles);
+        Particle particle = particles.get(particles.size()-1);
         previousParticles.add(new Particle(getDerivatives(particle), particle.getRadius(), particle.getMass()));
         previousParticles = forcesCalculator.calculate(previousParticles);
     }

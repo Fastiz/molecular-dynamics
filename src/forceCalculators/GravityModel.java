@@ -36,7 +36,7 @@ public class GravityModel implements ForcesCalculator {
                     double ex = (jParticle.getPos().getX() - iParticle.getPos().getX())/distance(jParticle.getPos(), iParticle.getPos()),
                             ey = (jParticle.getPos().getY() - iParticle.getPos().getY())/distance(jParticle.getPos(), iParticle.getPos());
 
-                    double forceModule = GRAVITATIONAL_CONSTANT * iParticle.getMass() * jParticle.getMass() / (squaredDistance(iParticle.getPos(), jParticle.getPos()));
+                    double forceModule = iParticle.getMass() * GRAVITATIONAL_CONSTANT * jParticle.getMass() / (squaredDistance(iParticle.getPos(), jParticle.getPos()));
 
                     forcesMatrix[i][j] = new Vector(ex*forceModule, ey*forceModule);
                 }
