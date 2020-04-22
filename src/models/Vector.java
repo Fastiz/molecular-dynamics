@@ -33,6 +33,10 @@ public class Vector {
         return new Vector(c.x*scalar, c.y*scalar);
     }
 
+    public double getModule() {
+        return Math.sqrt(Math.pow(this.x, 2) + Math.pow(this.y, 2));
+    }
+
     public double magnitude(){
         return Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
     }
