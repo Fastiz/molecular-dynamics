@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 
 def main():
     #plot_numerical_vs_analytical()
-    #plot_error_vs_step()
+    plot_error_vs_step()
     plot_min_distance_from_mars_all_times()
 
 
@@ -108,11 +108,11 @@ def plot_file_numerical_vs_analytical(filename, step, label, analytical_solution
 
 
 def plot_min_distance_from_mars_all_times():
-    step = 100000
+    step = 1000 * 100
     iterations = 100
     directory = "../results/gravity/"
 
-    times = np.arange(0, step * iterations, step)
+    times = np.arange(step, step * (iterations+1), step)
     min_distances = []
 
     for filename in os.listdir(directory):
@@ -121,6 +121,12 @@ def plot_min_distance_from_mars_all_times():
     plt.yscale('log')
     plt.plot(times, min_distances)
     plt.axhline(y=3389.5, xmin=min(times), xmax=max(times), color='r')
+
+    min_val = min(min_distances)
+    index = min_distances.index(min_val)
+
+    plot_distance_from_mars_vs_time("../results/gravity/sim"+str(int(times[index]/step)))
+
     plt.show()
 
 
@@ -150,6 +156,38 @@ def min_distance_from_mars(path):
             min_distance = dist
 
     return min_distance
+
+
+def plot_distance_from_mars_vs_time(path):
+    print(path)
+    lines = []
+    with open(path, 'r') as f:  # open in readonly mode
+        lines = [line.rstrip() for line in f]
+
+    launching_time = int(lines[0])
+
+    offset = 1 + launching_time * 4
+
+    mars_index = 3
+    spaceship_index = 4
+
+    step = 1000 * 100
+
+    times = np.arange(launching_time*step, 10000000 * 100, step)
+    distances = []
+
+    for index in range(int((len(lines)-offset) / 5)):
+        temp_values = lines[index*5+offset:index*5 + 5 + offset]
+        spaceship_x, spaceship_y = temp_values[spaceship_index].split()
+        mars_x, mars_y = temp_values[mars_index].split()
+
+        dist = np.linalg.norm(np.array([float(spaceship_x), float(spaceship_y)]) - np.array([float(mars_x),
+                                                                                             float(mars_y)]))
+        distances.append(dist)
+    plt.figure()
+    #plt.yscale("log")
+    plt.plot(times, distances)
+    plt.axhline(y=3389.5, xmin=min(times), xmax=max(times), color='r')
 
 
 if __name__ == "__main__":
