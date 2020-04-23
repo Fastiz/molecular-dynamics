@@ -8,6 +8,7 @@ def main():
     #plot_numerical_vs_analytical()
     #plot_error_vs_step()
     plot_min_distance_from_mars_all_times()
+    plt.show()
 
 
 def plot_error_vs_step():
@@ -115,19 +116,22 @@ def plot_min_distance_from_mars_all_times():
     times = np.arange(step, step * (iterations+1), step)
     min_distances = []
 
-    for filename in os.listdir(directory):
+    for filename in sorted(os.listdir(directory), key=lambda file: int(file[3:])):
         min_distances.append(min_distance_from_mars(directory + filename))
 
-    plt.yscale('log')
+    plt.figure()
     plt.plot(times, min_distances)
     plt.axhline(y=3389.5, xmin=min(times), xmax=max(times), color='r')
 
     min_val = min(min_distances)
     index = min_distances.index(min_val)
-
+    print("Min value: "+str(min_val))
+    print("For animation use file: sim"+str(int(times[index]/step)))
     plot_distance_from_mars_vs_time("../results/gravity/sim"+str(int(times[index]/step)))
 
-    plt.show()
+    plot_distance_from_mars_vs_time("../results/gravity/sim"+str(40))
+
+plt.show()
 
 
 def min_distance_from_mars(path):
@@ -145,7 +149,7 @@ def min_distance_from_mars(path):
     spaceship_index = 4
 
     for index in range(int((len(lines)-offset) / 5)):
-        temp_values = lines[index*5+offset:index*5 + 5 + offset]
+        temp_values = lines[index*5+offset:(index+1)*5 + offset]
         spaceship_x, spaceship_y = temp_values[spaceship_index].split()
         mars_x, mars_y = temp_values[mars_index].split()
 
@@ -159,7 +163,6 @@ def min_distance_from_mars(path):
 
 
 def plot_distance_from_mars_vs_time(path):
-    print(path)
     lines = []
     with open(path, 'r') as f:  # open in readonly mode
         lines = [line.rstrip() for line in f]
@@ -185,7 +188,7 @@ def plot_distance_from_mars_vs_time(path):
                                                                                              float(mars_y)]))
         distances.append(dist)
     plt.figure()
-    #plt.yscale("log")
+
     plt.plot(times, distances)
     plt.axhline(y=3389.5, xmin=min(times), xmax=max(times), color='r')
 
