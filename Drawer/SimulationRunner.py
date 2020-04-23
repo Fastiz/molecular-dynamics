@@ -9,8 +9,8 @@ from Particle import Particle
 
 class SimulationRunner:
 
-    COLORS = [(252, 198, 3), (3, 84, 145), (252, 90, 3), (255, 255, 255)]
-    RADIUS = [20, 12, 8, 3]
+    COLORS = [(252, 198, 3), (3, 84, 145), (252, 90, 3), (209, 135, 17), (173, 154, 75), (167, 185, 199), (255, 255, 255), (255, 255, 255)]
+    RADIUS = [22, 12, 6, 5, 16, 4, 0.2, 1]
 
     def __init__(self, path):
         self.reader = FilesReader(path + 'dynamic_file', path + 'static_file')
