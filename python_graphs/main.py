@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 
 def main():
     #plot_numerical_vs_analytical()
-    plot_error_vs_step()
+    #plot_error_vs_step()
     plot_min_distance_from_mars_all_times()
 
 
@@ -84,7 +84,7 @@ def plot_numerical_vs_analytical():
     plt2, = plot_file_numerical_vs_analytical("../results/spring/beeman/sim2", step, label2, analytical_solution)
     plt3, = plot_file_numerical_vs_analytical("../results/spring/leap_frog/sim2", step, label3, analytical_solution)
 
-    plt4, = plt.plot(times, analytical_solution, label="Analítica")
+    plt4, = plt.plot(times, analytical_solution, label="Analitica")
 
     plt.legend(handles=[plt1, plt2, plt3, plt4])
     plt.show()
@@ -102,14 +102,14 @@ def plot_file_numerical_vs_analytical(filename, step, label, analytical_solution
     errors = [((numerical - analytical) ** 2) for numerical, analytical in zip(numerical_solution, analytical_solution)]
     mean_squared_error = sum(errors) / len(times)
 
-    print("(%s) Error cuadrático medio: %s" % (label, mean_squared_error))
+    print("(%s) Error cuadratico medio: %s" % (label, mean_squared_error))
 
     return plt.plot(times, numerical_solution, label=label)
 
 
 def plot_min_distance_from_mars_all_times():
-    step = 1000 * 100
-    iterations = 100
+    step = 1000 * 50
+    iterations = 150
     directory = "../results/gravity/"
 
     times = np.arange(step, step * (iterations+1), step)
@@ -171,9 +171,9 @@ def plot_distance_from_mars_vs_time(path):
     mars_index = 3
     spaceship_index = 4
 
-    step = 1000 * 100
+    step = 1000 * 50
 
-    times = np.arange(launching_time*step, 10000000 * 100, step)
+    times = np.arange(launching_time*step, (438000 * 50), step)
     distances = []
 
     for index in range(int((len(lines)-offset) / 5)):

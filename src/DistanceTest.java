@@ -27,14 +27,14 @@ public class DistanceTest {
     private static final double EARTH_DISTANCE = Math.abs(EARTH_X / Math.cos(EARTH_ANGLE));
     private static final double EARTH_VX = 7.9179041699407207489;
     private static final double EARTH_VY = -28.678710520938155241;
-    private static final double EARTH_V_ANGLE = Math.atan(EARTH_VY / EARTH_VX);
+    private static final double EARTH_V_ANGLE = Math.atan2(EARTH_VY, EARTH_VX);
     private static final double EARTH_V = EARTH_VX / Math.cos(EARTH_V_ANGLE);
     private static final double EARTH_MASS = 5.97219e24;
 
     private static final double SUN_MASS = 1.988500e30;
 
     private static final double SPACESHIP_MASS = 2.0e5;
-    private static final double SPACESHIP_DISTANCE = EARTH_DISTANCE + 1500;
+    private static final double SPACESHIP_DISTANCE = EARTH_DISTANCE + 1500 + 6371.01;;
     private static final double SPACESHIP_X = SPACESHIP_DISTANCE * Math.cos(EARTH_ANGLE);
     private static final double SPACESHIP_Y = SPACESHIP_DISTANCE * Math.sin(EARTH_ANGLE);
     private static final double SPACESHIP_V = 8 + 7.12;
@@ -55,30 +55,30 @@ public class DistanceTest {
 
         int TIME_STEP = 1000;
         int TIME_ITERATIONS = 100000;
-        int step = 73;
+        int step = 50;
         double year = 3600 * 24 * 140 / (73.0);
 
         int minSecond = 0;
         double minGlobalDistance = Double.MAX_VALUE;
-        for (int second = 203100* 60; second < 203100 * 60 + 1; second += step) {
+        for (int second = 0 * 24 * 60 * 60; second < 360 * 24 * 60 * 60; second += 24 * 60 * 60) {
 
             System.out.println("Day: " + second / (24 * 60 * 60) + " Second: " + second);
             SimpleBeeman algorithm = new SimpleBeeman(new ArrayList<>(particlesList), new GravityModel(), step);
 
             Vector minDistance = new Vector(Double.MAX_VALUE, Double.MAX_VALUE);
             boolean flag = false;
-            for (long t = 0; t < 400000; t++) {
+            for (long t = 0; t < 300000; t++) {
                 if (!flag && t >= second / step) {
                     flag = true;
                     Particle earth = algorithm.getParticles().get(1);
 
-                    double EARTH_V_ANGLE = Math.atan(earth.getVel().getY() / earth.getVel().getX());
+                    double EARTH_V_ANGLE = Math.atan2(earth.getVel().getY(), earth.getVel().getX());
                     double EARTH_ANGLE = Math.atan2(earth.getPos().getY(), earth.getPos().getX());
-                    double SPACESHIP_DISTANCE = earth.getPos().magnitude() + 1500;
+                    double SPACESHIP_DISTANCE = earth.getPos().magnitude() + 1500 + 6371.01;
                     double SPACESHIP_X = SPACESHIP_DISTANCE * Math.cos(EARTH_ANGLE);
                     double SPACESHIP_Y = SPACESHIP_DISTANCE * Math.sin(EARTH_ANGLE);
-                    double SPACESHIP_VX = SPACESHIP_V * Math.cos(EARTH_V_ANGLE);
-                    double SPACESHIP_VY = SPACESHIP_V * Math.sin(EARTH_V_ANGLE);
+                    double SPACESHIP_VX = (SPACESHIP_V * Math.cos(EARTH_V_ANGLE));
+                    double SPACESHIP_VY = (SPACESHIP_V * Math.sin(EARTH_V_ANGLE));
 
                     algorithm.addParticle(new Particle(new Vector(SPACESHIP_X, SPACESHIP_Y), new Vector(SPACESHIP_VX, SPACESHIP_VY), 30, SPACESHIP_MASS));
                 }
