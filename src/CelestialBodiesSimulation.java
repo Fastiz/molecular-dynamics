@@ -148,8 +148,9 @@ public class CelestialBodiesSimulation {
                         List<Particle> current = algorithm.getParticles();
                         for (Particle particle : current) {
                             Vector pos = particle.getPos();
+                            Vector vel = particle.getVel();
 
-                            bf.write(pos.getX() + " " + pos.getY() + "\n");
+                            bf.write(pos.getX() + " " + pos.getY() + " " + vel.getX() + " " + vel.getY() + "\n");
                         }
 
                     }
