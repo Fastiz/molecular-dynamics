@@ -121,15 +121,13 @@ def plot_min_distance_from_mars_all_times():
 
     plt.figure()
     plt.plot(times, min_distances)
-    plt.axhline(y=3389.5, xmin=min(times), xmax=max(times), color='r')
+    plt.hlines(y=3389.5, xmin=min(times), xmax=max(times), color="r")
 
     min_val = min(min_distances)
     index = min_distances.index(min_val)
     print("Min value: "+str(min_val))
     print("For animation use file: sim"+str(int(times[index]/step)))
     plot_distance_from_mars_vs_time("../results/gravity/sim"+str(int(times[index]/step)))
-
-    plot_distance_from_mars_vs_time("../results/gravity/sim"+str(40))
 
 plt.show()
 
@@ -150,8 +148,8 @@ def min_distance_from_mars(path):
 
     for index in range(int((len(lines)-offset) / 5)):
         temp_values = lines[index*5+offset:(index+1)*5 + offset]
-        spaceship_x, spaceship_y = temp_values[spaceship_index].split()
-        mars_x, mars_y = temp_values[mars_index].split()
+        spaceship_x, spaceship_y, _, _ = temp_values[spaceship_index].split()
+        mars_x, mars_y, _, _ = temp_values[mars_index].split()
 
         dist = np.linalg.norm(np.array([float(spaceship_x), float(spaceship_y)]) - np.array([float(mars_x),
                                                                                              float(mars_y)]))
@@ -179,19 +177,26 @@ def plot_distance_from_mars_vs_time(path):
     times = np.arange(launching_time*step, (438000 * 50), step)
     distances = []
 
+    speeds = []
+
     for index in range(int((len(lines)-offset) / 5)):
         temp_values = lines[index*5+offset:index*5 + 5 + offset]
-        spaceship_x, spaceship_y = temp_values[spaceship_index].split()
-        mars_x, mars_y = temp_values[mars_index].split()
+        spaceship_x, spaceship_y, spaceship_vx, spaceship_vy = temp_values[spaceship_index].split()
+        mars_x, mars_y, mars_vx, mars_vy = temp_values[mars_index].split()
 
         dist = np.linalg.norm(np.array([float(spaceship_x), float(spaceship_y)]) - np.array([float(mars_x),
                                                                                              float(mars_y)]))
         distances.append(dist)
+        speeds.append(np.linalg.norm(np.array([float(spaceship_vx), float(spaceship_vy)])))
+
     plt.figure()
 
     plt.plot(times, distances)
-    plt.axhline(y=3389.5, xmin=min(times), xmax=max(times), color='r')
+    plt.hlines(y=3389.5, xmin=min(times), xmax=max(times), color='r')
 
+    plt.figure()
+    plt.plot(times, speeds)
+    plt.vlines(x=times[distances.index(min(distances))], ymin=min(speeds), ymax=max(speeds))
 
 if __name__ == "__main__":
     main()
