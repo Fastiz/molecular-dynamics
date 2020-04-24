@@ -37,7 +37,7 @@ public class DistanceTest {
     private static final double SPACESHIP_DISTANCE = EARTH_DISTANCE + 1500 + 6371.01;;
     private static final double SPACESHIP_X = SPACESHIP_DISTANCE * Math.cos(EARTH_ANGLE);
     private static final double SPACESHIP_Y = SPACESHIP_DISTANCE * Math.sin(EARTH_ANGLE);
-    private static final double SPACESHIP_V = 8 + 7.12;
+    private static final double SPACESHIP_V = 8.0 + 7.12;
     private static final double SPACESHIP_VX = SPACESHIP_V * Math.cos(EARTH_V_ANGLE);
     private static final double SPACESHIP_VY = SPACESHIP_V * Math.sin(EARTH_V_ANGLE);
 
@@ -48,26 +48,22 @@ public class DistanceTest {
         particlesList.add(new Particle(new Vector(EARTH_X, EARTH_Y), new Vector(EARTH_VX, EARTH_VY), 30, EARTH_MASS));
         particlesList.add(new Particle(new Vector(MARS_X, MARS_Y), new Vector(MARS_VX, MARS_VY), 30, MARS_MASS));
 
-        (new File("results")).mkdir();
-        (new File("results/velocity/")).mkdir();
-
-        Utils.deleteFiles("results/velocity/");
-
         int TIME_STEP = 1000;
         int TIME_ITERATIONS = 100000;
-        int step = 50;
-        double year = 3600 * 24 * 140 / (73.0);
+        double step = 0.1;
 
-        int minSecond = 0;
+        double minSecond = 0;
+        double arrivalTime = 0;
         double minGlobalDistance = Double.MAX_VALUE;
-        for (int second = 0 * 24 * 60 * 60; second < 360 * 24 * 60 * 60; second += 24 * 60 * 60) {
+        for (double second = 8453965; second <= 8453965; second += 1) {
 
             System.out.println("Day: " + second / (24 * 60 * 60) + " Second: " + second);
             SimpleBeeman algorithm = new SimpleBeeman(new ArrayList<>(particlesList), new GravityModel(), step);
 
             Vector minDistance = new Vector(Double.MAX_VALUE, Double.MAX_VALUE);
             boolean flag = false;
-            for (long t = 0; t < 300000; t++) {
+            boolean cutSimulation = false;
+            for (long t = 0; !cutSimulation && t < 400000 * 50 / step; t++) {
                 if (!flag && t >= second / step) {
                     flag = true;
                     Particle earth = algorithm.getParticles().get(1);
@@ -77,8 +73,8 @@ public class DistanceTest {
                     double SPACESHIP_DISTANCE = earth.getPos().magnitude() + 1500 + 6371.01;
                     double SPACESHIP_X = SPACESHIP_DISTANCE * Math.cos(EARTH_ANGLE);
                     double SPACESHIP_Y = SPACESHIP_DISTANCE * Math.sin(EARTH_ANGLE);
-                    double SPACESHIP_VX = (SPACESHIP_V * Math.cos(EARTH_V_ANGLE));
-                    double SPACESHIP_VY = (SPACESHIP_V * Math.sin(EARTH_V_ANGLE));
+                    double SPACESHIP_VX = (SPACESHIP_V * Math.cos(EARTH_V_ANGLE)) + (-Math.sin(EARTH_ANGLE) * earth.getVel().magnitude());
+                    double SPACESHIP_VY = (SPACESHIP_V * Math.sin(EARTH_V_ANGLE)) + (Math.cos(EARTH_ANGLE) * earth.getVel().magnitude());
 
                     algorithm.addParticle(new Particle(new Vector(SPACESHIP_X, SPACESHIP_Y), new Vector(SPACESHIP_VX, SPACESHIP_VY), 30, SPACESHIP_MASS));
                 }
@@ -90,8 +86,12 @@ public class DistanceTest {
                     Vector spaceshipPos = algorithm.getParticles().get(3).getPos();
                     double distanceModule = Math.sqrt(Math.pow(spaceshipPos.getX() - marsPos.getX(), 2) + Math.pow(spaceshipPos.getY() - marsPos.getY(), 2));
                     if (distanceModule < minDistance.getModule()) {
+                        arrivalTime = t * step;
                         minDistance.setX(spaceshipPos.getX() - marsPos.getX());
                         minDistance.setY(spaceshipPos.getY() - marsPos.getY());
+                    }
+                    if (spaceshipPos.magnitude() > marsPos.magnitude() * 1.25) {
+                        cutSimulation = true;
                     }
                 }
             }
@@ -101,6 +101,7 @@ public class DistanceTest {
                 minGlobalDistance = module;
                 minSecond = second;
             }
+            System.out.println("Arrival time: " + arrivalTime);
             System.out.println(module);
         }
 

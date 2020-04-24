@@ -10,7 +10,7 @@ from Particle import Particle
 class SimulationRunner:
 
     COLORS = [(252, 198, 3), (3, 84, 145), (252, 90, 3), (209, 135, 17), (173, 154, 75), (167, 185, 199), (255, 255, 255), (255, 255, 255)]
-    RADIUS = [22, 12, 6, 5, 16, 4, 0.2, 1]
+    RADIUS = [20, 10, 5, 2, 16, 4, 0, 1]
 
     def __init__(self, path):
         self.reader = FilesReader(path + 'dynamic_file', path + 'static_file')
@@ -54,6 +54,7 @@ class SimulationRunner:
 
         drawer = Drawer(screen, self.reader.dimensions)
 
+        flag = True
         running = True
         while running:
             for event in pygame.event.get():
@@ -65,10 +66,11 @@ class SimulationRunner:
             particles = self.read_positions()
 
             if particles is None:
-                break
+                flag = False
 
             screen.blit(background, (0, 0))
 
-            drawer.update(particles)
+            if flag:
 
-            pygame.display.flip()
+                drawer.update(particles)
+                pygame.display.flip()

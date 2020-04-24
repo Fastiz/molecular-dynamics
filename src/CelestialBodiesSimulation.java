@@ -177,13 +177,14 @@ public class CelestialBodiesSimulation {
         int step = 50;
         SimpleBeeman algorithm = new SimpleBeeman(particlesList, new GravityModel(), step);
 
+        Particle earth = algorithm.getParticles().get(1);
+        algorithm.addParticle(generateSpaceship(earth));
 
         double maxMagnitude = 0;
         try(BufferedWriter bf = new BufferedWriter(new FileWriter("dynamic_file"))){
-            boolean flag = false;
-            for(long t=0; t< 12000000; t++){
+            for(long t=0; t< 82000000; t++){
 
-                if(t % 600 == 0) {
+                if(t % 1500 == 0) {
                     bf.write("#T" + t + "\n");
                     List<Particle> current = algorithm.getParticles();
                     for (Particle particle : current) {

@@ -7,7 +7,7 @@ class Drawer:
     BORDER_COLOR = (255, 255, 255)
     BORDER_WIDTH = 3
 
-    MARGIN = 100
+    MARGIN = 5
 
     def __init__(self, screen, dimensions):
         self.resolution = pygame.display.get_surface().get_size()
@@ -31,10 +31,6 @@ class Drawer:
     def normalize_distance_magnitude(self, magnitude):
         return magnitude * max(self.X_SIZE, self.Y_SIZE) / max(self.realDimensions[0], self.realDimensions[1])
 
-    def draw_walls(self):
-        pygame.draw.rect(self.screen, self.BORDER_COLOR, pygame.Rect(self.X_OFFSET, self.Y_OFFSET, self.X_SIZE,
-                                                                     self.Y_SIZE), self.BORDER_WIDTH)
-
     def draw_particles(self, particles):
         for particle in particles:
             x, y = particle.get_pos()
@@ -43,6 +39,5 @@ class Drawer:
                                                                        y) + self.SCREEN_CENTER[1])), int(particle.get_radius()))
 
     def update(self, particles):
-        self.draw_walls()
         self.draw_particles(particles)
         pygame.display.update()

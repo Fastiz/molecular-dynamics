@@ -110,10 +110,11 @@ def plot_file_numerical_vs_analytical(filename, step, label, analytical_solution
 
 def plot_min_distance_from_mars_all_times():
     step = 1000 * 50
-    iterations = 150
+    iterations = 701
+    TIME_STEP = 24 * 60 * 60
     directory = "../results/gravity/"
 
-    times = np.arange(step, step * (iterations+1), step)
+    times = np.arange(0, TIME_STEP * iterations, TIME_STEP)
     min_distances = []
 
     for filename in sorted(os.listdir(directory), key=lambda file: int(file[3:])):
@@ -125,9 +126,11 @@ def plot_min_distance_from_mars_all_times():
 
     min_val = min(min_distances)
     index = min_distances.index(min_val)
+    print(min_distances[index])
+    print(times[index])
     print("Min value: "+str(min_val))
-    print("For animation use file: sim"+str(int(times[index]/step)))
-    plot_distance_from_mars_vs_time("../results/gravity/sim"+str(int(times[index]/step)))
+    print("For animation use file: sim"+str(int(times[index]/TIME_STEP)))
+    plot_distance_from_mars_vs_time("../results/gravity/sim"+str(int(times[index]/TIME_STEP)))
 
 plt.show()
 
@@ -139,15 +142,15 @@ def min_distance_from_mars(path):
 
     launching_time = int(lines[0])
 
-    offset = 1 + launching_time * 4
+    offset = 1 + launching_time * 8
 
     min_distance = -1
 
     mars_index = 3
-    spaceship_index = 4
+    spaceship_index = 8
 
-    for index in range(int((len(lines)-offset) / 5)):
-        temp_values = lines[index*5+offset:(index+1)*5 + offset]
+    for index in range(int((len(lines)-offset) / 9)):
+        temp_values = lines[index*9+offset:(index+1)*9 + offset]
         spaceship_x, spaceship_y, _, _ = temp_values[spaceship_index].split()
         mars_x, mars_y, _, _ = temp_values[mars_index].split()
 
@@ -167,20 +170,19 @@ def plot_distance_from_mars_vs_time(path):
 
     launching_time = int(lines[0])
 
-    offset = 1 + launching_time * 4
+    offset = 1 + launching_time * 8
 
     mars_index = 3
-    spaceship_index = 4
+    spaceship_index = 8
 
     step = 1000 * 50
 
-    times = np.arange(launching_time*step, (438000 * 50), step)
     distances = []
 
     speeds = []
 
-    for index in range(int((len(lines)-offset) / 5)):
-        temp_values = lines[index*5+offset:index*5 + 5 + offset]
+    for index in range(int((len(lines)-offset) / 9)):
+        temp_values = lines[index*9+offset:index*9 + 9 + offset]
         spaceship_x, spaceship_y, spaceship_vx, spaceship_vy = temp_values[spaceship_index].split()
         mars_x, mars_y, mars_vx, mars_vy = temp_values[mars_index].split()
 
@@ -189,6 +191,8 @@ def plot_distance_from_mars_vs_time(path):
         distances.append(dist)
         speeds.append(np.linalg.norm(np.array([float(spaceship_vx), float(spaceship_vy)])))
 
+    times = np.arange(launching_time * step, (launching_time + len(distances)) * step, step)
+
     plt.figure()
 
     plt.plot(times, distances)
@@ -196,7 +200,8 @@ def plot_distance_from_mars_vs_time(path):
 
     plt.figure()
     plt.plot(times, speeds)
-    plt.vlines(x=times[distances.index(min(distances))], ymin=min(speeds), ymax=max(speeds))
+    print(speeds[distances.index(min(distances))])
+    plt.vlines(x=times[distances.index(min(distances))], ymin=min(speeds), ymax=max(speeds), color='r')
 
 if __name__ == "__main__":
     main()
