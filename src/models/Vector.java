@@ -29,6 +29,10 @@ public class Vector {
         this.y += v.y;
     }
 
+    public double distance(Vector v){
+        return Math.sqrt(Math.pow(this.x-v.x, 2) + Math.pow(this.y-v.y, 2));
+    }
+
     public static Vector scalarMultiplicationVector(double scalar, Vector c){
         return new Vector(c.x*scalar, c.y*scalar);
     }
