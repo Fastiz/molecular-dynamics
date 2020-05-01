@@ -10,7 +10,6 @@ from Particle import Particle
 class SimulationRunner:
 
     COLORS = [(252, 198, 3), (3, 84, 145), (252, 90, 3), (209, 135, 17), (173, 154, 75), (167, 185, 199), (255, 255, 255), (255, 255, 255)]
-    RADIUS = [20, 10, 5, 2, 16, 4, 0, 1]
 
     def __init__(self, path):
         self.reader = FilesReader(path + 'dynamic_file', path + 'static_file')
@@ -25,7 +24,7 @@ class SimulationRunner:
 
         particles = []
         for i in range(len(positions)):
-            particles.append(Particle(positions[i], self.RADIUS[i], self.COLORS[i]))
+            particles.append(Particle(positions[i], self.reader.get_particles_radius()[i], self.COLORS[0]))
 
         return particles
 

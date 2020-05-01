@@ -1,4 +1,3 @@
 from SimulationRunner import SimulationRunner
 
-simulationRunner = SimulationRunner("../")
-
+simulationRunner = SimulationRunner("../results/social/")
