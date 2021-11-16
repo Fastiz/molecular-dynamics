@@ -13,4 +13,4 @@ We use the following algorithms in order to estimate the date, the travel time, 
 * Leapfrog
 * Gear Predictor Corrector
 
-A video of the result can be found [here.](https://studio.youtube.com/video/OC9NTvwhi-A/edit)
+A video of the simulation can be found [here.](https://studio.youtube.com/video/OC9NTvwhi-A/edit)
